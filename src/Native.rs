@@ -22,11 +22,6 @@ pub(crate) fn Bind_function_native(
 
     let (Return_type, Return_type_cast) = Function.Get_return_type_to_FFI(&Return_identifier);
 
-    println!(
-        "Return type : {:?}",
-        Return_type.to_token_stream().to_string()
-    );
-
     quote! {
             #[allow(clippy::too_many_arguments)]
             extern "C" fn #Binding_identifier (

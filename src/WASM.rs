@@ -70,16 +70,11 @@ pub(crate) fn Bind_function_WASM(
 }
 
 pub fn Get_to_FFI(Arguments: &[Argument_type]) -> (Vec<Argument_type>, Vec<TokenStream>) {
-    println!("0");
-
     let mut Castings: Vec<TokenStream> = vec![];
     let mut FFI_Arguments: Vec<Argument_type> = vec![];
 
     for Argument in Arguments {
-        println!("1");
         FFI_Arguments.push(Argument.Get_FFI_argument_WASM());
-        println!("2");
-        println!("3");
 
         if let Some((Size_argument, Size_cast)) = Argument.Get_size_argument() {
             FFI_Arguments.push(Size_argument);
