@@ -1,5 +1,5 @@
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote, ToTokens};
+use quote::{format_ident, quote};
 use syn::parse_macro_input;
 
 use crate::Shared::{Argument::Argument_type, Function::Function_type};
