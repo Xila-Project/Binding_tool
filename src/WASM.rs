@@ -28,10 +28,9 @@ pub(crate) fn Bind_function_WASM(
 
     let (Return_type, Return_type_cast) = Function.Get_return_type_from_FFI(&Return_identifier);
 
-    println!(
-        "Return type : {:?}",
-        Return_type.to_token_stream().to_string()
-    );
+    if Function.Get_body().into_token_stream().to_string() != "{}" {
+        panic!("Please do not provide a body for the function {:?} since it will be replaced by the FFI call (example : fn foo(bar : &str) -> u8 {{}})", Function.Get_identifier().to_string());
+    }
 
     quote! {
             #[allow(clippy::too_many_arguments)]

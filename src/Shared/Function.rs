@@ -13,6 +13,10 @@ impl Function_type {
         Self { Function: Item }
     }
 
+    pub fn Get_identifier(&self) -> &Ident {
+        &self.Function.sig.ident
+    }
+
     pub fn Get_binding_identifier(&self) -> syn::Ident {
         format_ident!("{}_binding", &self.Function.sig.ident)
     }
