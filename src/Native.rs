@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use syn::parse_macro_input;
 
-use crate::Shared::{Argument::Argument_type, Function::Function_type};
+use crate::Shared::{Argument::Argument_type, Function::Function_typee};
 
 pub(crate) fn Bind_function_native(
     _Attributes: proc_macro::TokenStream,
@@ -29,7 +29,6 @@ pub(crate) fn Bind_function_native(
 
     quote! {
             #[allow(clippy::too_many_arguments)]
-            #[no_mangle]
             extern "C" fn #Binding_identifier (
                 Environment : Virtual_machine::Environment_pointer_type,
                 #(#FFI_arguments),*
