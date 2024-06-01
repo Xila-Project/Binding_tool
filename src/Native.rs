@@ -2,7 +2,7 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use syn::parse_macro_input;
 
-use crate::Shared::{Argument::Argument_type, Function::Function_typee};
+use crate::Shared::{Argument::Argument_type, Function::Function_type};
 
 pub(crate) fn Bind_function_native(
     _Attributes: proc_macro::TokenStream,
