@@ -1,13 +1,18 @@
+use std::{fs::OpenOptions, io::Write};
+
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
-use syn::parse_macro_input;
+use quote::{format_ident, quote, ToTokens};
+use syn::{parse_macro_input, punctuated::Punctuated, token::Comma, Meta};
 
 use crate::Shared::{Argument::Argument_type, Function::Function_type};
 
 pub(crate) fn Bind_function_native(
-    _Attributes: proc_macro::TokenStream,
+    Attributes: proc_macro::TokenStream,
     Item: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
+    let Attributes =
+        parse_macro_input!(Attributes with Punctuated::<Meta, Comma>::parse_terminated);
+
     let Function = Function_type::New(parse_macro_input!(Item as syn::ItemFn));
 
     let Binding_identifier = Function.Get_binding_identifier();
@@ -23,6 +28,15 @@ pub(crate) fn Bind_function_native(
     let Return_type = Function.Get_return_type();
 
     let (FFI_Return_type, Return_type_cast) = Function.Get_return_type_to_FFI(&Return_identifier);
+
+    let Prefix = Get_prefix(Attributes).unwrap_or("host".to_string());
+
+    if let Ok(Value) = std::env::var("Binding_tool_write_file") {
+        if Value == "1" {
+            Create_binding_directory();
+            Write_binding_file(&Function, &Prefix);
+        }
+    }
 
     quote! {
             #[allow(clippy::too_many_arguments)]
@@ -53,7 +67,23 @@ pub(crate) fn Bind_function_native(
     .into()
 }
 
-pub fn Get_from_FFI(Arguments: &[Argument_type]) -> (Vec<Argument_type>, Vec<TokenStream>) {
+fn Get_prefix(Attributes: Punctuated<Meta, Comma>) -> Option<String> {
+    for Attribute in Attributes {
+        if let Meta::NameValue(Name_value) = Attribute {
+            if Name_value.path.to_token_stream().to_string() == "Prefix" {
+                if let syn::Expr::Lit(Literal) = Name_value.value {
+                    if let syn::Lit::Str(String) = Literal.lit {
+                        return Some(String.value());
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn Get_from_FFI(Arguments: &[Argument_type]) -> (Vec<Argument_type>, Vec<TokenStream>) {
     let mut Castings: Vec<TokenStream> = vec![];
     let mut FFI_Arguments: Vec<Argument_type> = vec![];
 
@@ -68,4 +98,34 @@ pub fn Get_from_FFI(Arguments: &[Argument_type]) -> (Vec<Argument_type>, Vec<Tok
     }
 
     (FFI_Arguments, Castings)
+}
+
+fn Get_binding_directory_path() -> std::path::PathBuf {
+    std::env::temp_dir().join("Binding_tool").join("src")
+}
+
+fn Create_binding_directory() {
+    std::fs::create_dir_all(Get_binding_directory_path()).unwrap();
+}
+
+fn Write_binding_file(Function: &Function_type, Prefix: &str) {
+    let Binding_file_path = Get_binding_directory_path().join(Prefix.to_string() + ".rs");
+
+    let mut File = OpenOptions::new()
+        .append(true)
+        .open(Binding_file_path)
+        .unwrap();
+
+    let Signature = Function.Get_signature();
+
+    let Content = quote! {
+
+        #[Binding_tool::Bind_function_WASM]
+        pub #Signature {}
+    };
+
+    File.write_all(Content.to_string().as_bytes()).unwrap();
+
+    File.write_all("\n".as_bytes()).unwrap();
+    File.write_all("\n".as_bytes()).unwrap();
 }
