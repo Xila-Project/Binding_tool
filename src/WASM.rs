@@ -34,6 +34,7 @@ pub(crate) fn Bind_function_WASM(
 
     quote! {
             #[allow(clippy::too_many_arguments)]
+            #[allow(unused_variables)]
             pub #Signature {
                 // - Castings : let a = b as c;
                 #(#Castings)*
