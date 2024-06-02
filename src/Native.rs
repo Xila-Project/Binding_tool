@@ -20,22 +20,29 @@ pub(crate) fn Bind_function_native(
 
     let Return_identifier = format_ident!("__Result");
 
-    let (Return_type, Return_type_cast) = Function.Get_return_type_to_FFI(&Return_identifier);
+    let Return_type = Function.Get_return_type();
+
+    let (FFI_Return_type, Return_type_cast) = Function.Get_return_type_to_FFI(&Return_identifier);
 
     quote! {
             #[allow(clippy::too_many_arguments)]
             extern "C" fn #Binding_identifier (
                 Environment : Virtual_machine::Environment_pointer_type,
                 #(#FFI_arguments),*
-            ) #Return_type
+            ) #FFI_Return_type
 
              {
                 // - Castings : let a = b as c;
                 let Environment = Virtual_machine::Environment_type::From_raw_pointer(Environment).unwrap();
                 #(#Castings)*
 
-                // - Function body
-                let #Return_identifier = #Body;
+                // - Internal function
+                let mut __Internal_closure = || #Return_type
+                #Body
+                ;
+
+                // - Function call
+                let #Return_identifier = __Internal_closure();
 
                 // - Return type cast
                 #Return_type_cast
