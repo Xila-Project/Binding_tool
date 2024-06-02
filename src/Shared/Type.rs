@@ -69,7 +69,8 @@ fn Convert_to_FFI_primitive(Current_type: &syn::TypePath) -> syn::Type {
     match Current_type.to_token_stream().to_string().as_str() {
         "i8" | "i16" | "isize" | "i32" => parse_quote! {u32},
         "bool" | "u8" | "u16" | "usize" | "u32" => parse_quote! {u32},
-        "i64" => parse_quote! {u64},
+        "u64" => parse_quote! {u64},
+        "i64" => parse_quote! {i64},
         "f32" => parse_quote! {f32},
         "f64" => parse_quote! {f64},
         _ => unimplemented!(
