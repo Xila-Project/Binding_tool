@@ -123,9 +123,13 @@ pub fn Get_from_FFI(Identifier: &Ident, Current_type: &syn::Type) -> TokenStream
             "bool" => quote! {
                 let #Identifier = #Identifier != 0;
             },
-            _ => quote! {
-                let #Identifier = #Identifier as #Current_type;
-            },
+            // - WASM type -> WASM type (no casting needed)
+            "i32" | "i64" | "u32" | "u64" | "f32" | "f64" => quote! {},
+            _ => {
+                quote! {
+                    let #Identifier = #Identifier as #Current_type;
+                }
+            }
         },
 
         Type => panic!(
