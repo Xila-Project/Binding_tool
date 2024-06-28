@@ -79,9 +79,6 @@ fn Convert_to_FFI_primitive(Current_type: &syn::TypePath) -> syn::Type {
         "i64" => parse_quote! {i64},
         "f32" => parse_quote! {f32},
         "f64" => parse_quote! {f64},
-        _ => unimplemented!(
-            "for primitive type : {:?}",
-            Current_type.to_token_stream().to_string()
-        ),
+        _ => parse_quote! {#Current_type},
     }
 }
