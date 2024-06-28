@@ -66,8 +66,14 @@ fn Convert_to_FFI_reference(Mutable: bool, Path: &syn::Path) -> syn::Type {
 }
 
 fn Convert_to_FFI_primitive(Current_type: &syn::TypePath) -> syn::Type {
-    match Current_type.to_token_stream().to_string().as_str() {
-        "i8" | "i16" | "isize" | "i32" => parse_quote! {u32},
+    let Current_type_string = Current_type.path.to_token_stream().to_string();
+
+    if Current_type_string.starts_with("Result") || Current_type_string.starts_with("Option") {
+        return parse_quote! {u32};
+    }
+
+    match Current_type_string.as_str() {
+        "i8" | "i16" | "isize" | "i32" => parse_quote! {i32},
         "bool" | "u8" | "u16" | "usize" | "u32" => parse_quote! {u32},
         "u64" => parse_quote! {u64},
         "i64" => parse_quote! {i64},

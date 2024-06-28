@@ -60,7 +60,30 @@ pub fn Get_to_FFI(
             }
         }
         // - Primitive type -> WASM type
-        syn::Type::Path(_) => quote! { let #Identifier = #Identifier as #Destination_type; },
+        syn::Type::Path(Path) => {
+            let Path = Path.path.to_token_stream().to_string();
+
+            if Path.starts_with("Result") {
+                quote! {
+                    let #Identifier = match #Identifier {
+                        Ok(()) => 0,
+                        Err(__Error) => {
+                            let __Error : std::num::NonZeroU32 = __Error.into();
+                            __Error.get()
+                        }
+                    };
+                }
+            } else if Path.starts_with("Option") {
+                quote! {
+                    let #Identifier = match #Identifier {
+                        Some(()) => 1,
+                        None => 0,
+                    };
+                }
+            } else {
+                quote! { let #Identifier = #Identifier as #Destination_type; }
+            }
+        }
         Type => panic!(
             "Unsupported type in FFI bindings {:?}",
             Type.to_token_stream().to_string()
@@ -119,18 +142,40 @@ pub fn Get_from_FFI(Identifier: &Ident, Current_type: &syn::Type) -> TokenStream
                 ),
             }
         }
-        syn::Type::Path(Type_path) => match Type_path.path.to_token_stream().to_string().as_str() {
-            "bool" => quote! {
-                let #Identifier = #Identifier != 0;
-            },
-            // - WASM type -> WASM type (no casting needed)
-            "i32" | "i64" | "u32" | "u64" | "f32" | "f64" => quote! {},
-            _ => {
+        syn::Type::Path(Type_path) => {
+            let Type_path = Type_path.path.to_token_stream().to_string();
+
+            if Type_path.starts_with("Result") {
                 quote! {
-                    let #Identifier = #Identifier as #Current_type;
+                    let #Identifier = if #Identifier == 0 {
+                        Ok(())
+                    } else {
+                        Err(std::num::NonZeroU32::new(#Identifier).unwrap())
+                    };
+                }
+            } else if Type_path.starts_with("Option") {
+                quote! {
+                    let #Identifier = if #Identifier == 0 {
+                        None
+                    } else {
+                        Some(())
+                    };
+                }
+            } else {
+                match Type_path.as_str() {
+                    "bool" => quote! {
+                        let #Identifier = #Identifier != 0;
+                    },
+                    // - WASM type -> WASM type (no casting needed)
+                    "i32" | "i64" | "u32" | "u64" | "f32" | "f64" => quote! {},
+                    _ => {
+                        quote! {
+                            let #Identifier = #Identifier as #Current_type;
+                        }
+                    }
                 }
             }
-        },
+        }
 
         Type => panic!(
             "Unsupported type in FFI bindings {:?}",
