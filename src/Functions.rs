@@ -24,13 +24,13 @@ impl LVGL_functions_type {
     }
 
     fn Filter_function(Signature: &Signature) -> bool {
-        let Unauthorized_functions = vec!["lv_obj_get_display"];
+        let Unauthorized_functions = ["lv_obj_get_display"];
 
         if Unauthorized_functions.contains(&Signature.ident.to_string().as_str()) {
             return false;
         }
 
-        let Authorized_prefixes = vec![
+        let Authorized_prefixes = [
             "lv_point_",
             "lv_color",
             "lv_style_",

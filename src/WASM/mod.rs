@@ -1,16 +1,10 @@
-use std::{
-    env,
-    fs::File,
-    io::Write,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{fs::File, io::Write, path::Path};
 
-use crate::Format::{self, Format_C};
+use crate::Format::Format_C;
 
-use super::{Functions::LVGL_functions_type, Type_tree::Type_tree_type};
+use super::Functions::LVGL_functions_type;
 use quote::ToTokens;
-use syn::{Ident, ReturnType, Signature};
+use syn::{ReturnType, Signature};
 
 pub fn Convert_fundamental_type(Type: &str) -> String {
     match Type {

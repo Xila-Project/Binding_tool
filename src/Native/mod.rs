@@ -2,13 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 
-use std::{
-    env,
-    fs::File,
-    io::Write,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{fs::File, io::Write, path::Path};
 
 use super::{Format::Format_rust, Functions::LVGL_functions_type};
 use quote::quote;

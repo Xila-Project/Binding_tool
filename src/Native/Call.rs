@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use proc_macro2::TokenStream;
 use quote::{format_ident, quote, ToTokens};
 use syn::{FnArg, ReturnType, Signature, TypePath};
