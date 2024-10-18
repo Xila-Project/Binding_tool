@@ -1,0 +1,3 @@
+[submodule "LVGL_configuration"]
+	path = LVGL_configuration
+	url = https://github.com/Xila-Project/LVGL_configuration
